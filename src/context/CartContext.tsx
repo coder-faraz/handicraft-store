@@ -110,6 +110,8 @@ interface CartContextValue {
   clearCart: () => void;
   totalItems: number;
   totalPrice: number;
+  isCartOpen: boolean;
+  setCartOpen: (open: boolean) => void;
 }
 
 const CartContext = createContext<CartContextValue | undefined>(undefined);
@@ -123,6 +125,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     items: [],
     isHydrated: false,
   });
+  const [isCartOpen, setCartOpen] = React.useState(false);
 
   // Hydrate from localStorage on mount
   useEffect(() => {
@@ -152,6 +155,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
 
   const addItem = useCallback((item: CartItem) => {
     dispatch({ type: 'ADD_ITEM', payload: item });
+    setCartOpen(true);
   }, []);
 
   const removeItem = useCallback((productId: string) => {
@@ -184,6 +188,8 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
         clearCart,
         totalItems,
         totalPrice,
+        isCartOpen,
+        setCartOpen,
       }}
     >
       {children}
