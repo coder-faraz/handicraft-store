@@ -8,9 +8,32 @@ export interface IUser extends Document {
   phone?: string;
   role: 'admin' | 'customer';
   isActive: boolean;
+  addresses: {
+    _id?: mongoose.Types.ObjectId;
+    name: string;
+    phone: string;
+    addressLine1: string;
+    addressLine2?: string;
+    city: string;
+    state: string;
+    pincode: string;
+    isDefault: boolean;
+  }[];
+  wishlist: mongoose.Types.ObjectId[];
   createdAt: Date;
   updatedAt: Date;
 }
+
+const AddressSchema = new Schema({
+  name: { type: String, required: true },
+  phone: { type: String, required: true },
+  addressLine1: { type: String, required: true },
+  addressLine2: { type: String },
+  city: { type: String, required: true },
+  state: { type: String, required: true },
+  pincode: { type: String, required: true },
+  isDefault: { type: Boolean, default: false },
+});
 
 const UserSchema = new Schema<IUser>(
   {
@@ -49,6 +72,16 @@ const UserSchema = new Schema<IUser>(
       type: Boolean,
       default: true,
     },
+    addresses: {
+      type: [AddressSchema],
+      default: [],
+    },
+    wishlist: [
+      {
+        type: Schema.Types.ObjectId,
+        ref: 'Product',
+      },
+    ],
   },
   {
     timestamps: true,
@@ -62,7 +95,6 @@ const UserSchema = new Schema<IUser>(
 );
 
 // Indexes
-UserSchema.index({ email: 1 });
 UserSchema.index({ role: 1 });
 UserSchema.index({ createdAt: -1 });
 

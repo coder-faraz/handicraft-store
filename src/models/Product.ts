@@ -129,8 +129,6 @@ ProductSchema.virtual('discountPercent').get(function () {
 });
 
 // Indexes
-ProductSchema.index({ slug: 1 }, { unique: true });
-ProductSchema.index({ sku: 1 }, { unique: true });
 ProductSchema.index({ categoryId: 1 });
 ProductSchema.index({ isFeatured: 1, isActive: 1 });
 ProductSchema.index({ 'ratings.average': -1 });
