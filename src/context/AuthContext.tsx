@@ -18,6 +18,7 @@ interface AuthContextValue {
   isLoggedIn: boolean;
   isAdmin: boolean;
   login: (email: string, password: string) => Promise<{ success: boolean; error?: string }>;
+  register: (data: any) => Promise<{ success: boolean; error?: string }>;
   logout: () => Promise<void>;
   refreshUser: () => Promise<void>;
 }
@@ -105,6 +106,42 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   );
 
   /**
+   * Register a new user.
+   * Calls POST /api/auth/register and then logs in on success.
+   */
+  const register = useCallback(
+    async (
+      data: any
+    ): Promise<{ success: boolean; error?: string }> => {
+      try {
+        const res = await fetch('/api/auth/register', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(data),
+        });
+
+        const result = await res.json();
+
+        if (res.ok && result.success) {
+          // After successful registration, log them in automatically
+          return await login(data.email, data.password);
+        }
+
+        return {
+          success: false,
+          error: result.error ?? 'Registration failed. Please try again.',
+        };
+      } catch {
+        return {
+          success: false,
+          error: 'Network error. Please check your connection.',
+        };
+      }
+    },
+    [login]
+  );
+
+  /**
    * Log out — calls DELETE /api/auth/logout and clears local state.
    */
   const logout = useCallback(async () => {
@@ -131,6 +168,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         isLoggedIn,
         isAdmin,
         login,
+        register,
         logout,
         refreshUser,
       }}

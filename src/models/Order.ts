@@ -145,7 +145,6 @@ const OrderSchema = new Schema<IOrder>(
 );
 
 // Indexes
-OrderSchema.index({ orderNumber: 1 }, { unique: true });
 OrderSchema.index({ userId: 1, createdAt: -1 });
 OrderSchema.index({ paymentStatus: 1 });
 OrderSchema.index({ orderStatus: 1 });
