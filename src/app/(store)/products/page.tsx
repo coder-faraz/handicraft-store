@@ -8,9 +8,11 @@ import SortSelect from '@/components/store/product/SortSelect';
 import Link from 'next/link';
 
 export const metadata = {
-  title: 'All Products',
-  description: 'Shop our entire collection of authentic Indian handicrafts, decor, and gifts.',
+  title: 'All Products | Limra Manufacturing Co.',
+  description: 'Explore our complete collection of premium Indian handicrafts.',
 };
+
+export const revalidate = 1800;
 
 export default async function ProductsPage({
   searchParams,
