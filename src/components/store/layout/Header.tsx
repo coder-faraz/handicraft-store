@@ -10,6 +10,7 @@ import { useAuth } from '@/context/AuthContext';
 import MobileNav from './MobileNav';
 import { cn } from '@/lib/utils';
 import type { ICategory } from '@/models/Category';
+import { getOrganizationSchema } from '@/lib/structured-data';
 
 interface HeaderProps {
   categories: any[];
@@ -43,6 +44,10 @@ export default function Header({ categories }: HeaderProps) {
 
   return (
     <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(getOrganizationSchema()) }}
+      />
       <header
         className={cn(
           'sticky top-0 z-40 w-full transition-all duration-300',

@@ -11,9 +11,10 @@ import { cn } from '@/lib/utils';
 
 interface ProductCardProps {
   product: IProduct;
+  priority?: boolean;
 }
 
-export default function ProductCard({ product }: ProductCardProps) {
+export default function ProductCard({ product, priority = false }: ProductCardProps) {
   const { addItem } = useCart();
   const imageUrl = product.images?.[0]?.url || '';
   const price = product.price;
@@ -64,6 +65,9 @@ export default function ProductCard({ product }: ProductCardProps) {
             src={imageUrl}
             alt={product.name}
             fill
+            priority={priority}
+            placeholder="blur"
+            blurDataURL="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mO88+hZPQAIxwMu7+e+zQAAAABJRU5ErkJggg=="
             className="object-cover group-hover:scale-105 transition-transform duration-500"
           />
         ) : (

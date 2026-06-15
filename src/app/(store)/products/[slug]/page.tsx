@@ -7,6 +7,9 @@ import ProductImageGallery from '@/components/store/product/ProductImageGallery'
 import ProductDetails from '@/components/store/product/ProductDetails';
 import RelatedProducts from '@/components/store/product/RelatedProducts';
 import { Metadata } from 'next';
+import { getProductSchema, getBreadcrumbSchema } from '@/lib/structured-data';
+
+export const revalidate = 3600;
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   await connectDB();
@@ -15,11 +18,20 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   
   if (!product) return { title: 'Product Not Found' };
   
+  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
+  
   return {
-    title: `${product.name} | Limra Manufacturing Co.`,
-    description: product.description,
+    title: `${product.name} | Limra Manufacturing Company`,
+    description: product.shortDescription || product.description,
+    alternates: {
+      canonical: `${baseUrl}/products/${product.slug}`,
+    },
     openGraph: {
+      title: `${product.name} | Limra Manufacturing Company`,
+      description: product.shortDescription || product.description,
       images: product.images?.length > 0 ? [product.images[0].url] : [],
+      url: `${baseUrl}/products/${product.slug}`,
+      type: 'website',
     }
   };
 }
@@ -43,27 +55,24 @@ export default async function ProductDetailPage({
   }).limit(4).lean();
 
   // Structured Data (JSON-LD) for SEO
-  const jsonLd = {
-    '@context': 'https://schema.org',
-    '@type': 'Product',
-    name: product.name,
-    image: product.images?.map((img: any) => img.url) || [],
-    description: product.description,
-    sku: product.sku,
-    offers: {
-      '@type': 'Offer',
-      url: `${process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'}/products/${product.slug}`,
-      priceCurrency: 'INR',
-      price: product.salePrice || product.price,
-      availability: product.stock > 0 ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock',
-    }
-  };
+  const productSchema = getProductSchema(product);
+  
+  const breadcrumbItems = [
+    { name: 'Home', url: '/' },
+    { name: 'Products', url: '/products' },
+  ];
+  if ((product.category as any)?.name) {
+    breadcrumbItems.push({ name: (product.category as any).name, url: `/categories/${(product.category as any).slug}` });
+  }
+  breadcrumbItems.push({ name: product.name, url: `/products/${product.slug}` });
+  
+  const breadcrumbSchema = getBreadcrumbSchema(breadcrumbItems);
 
   return (
     <>
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        dangerouslySetInnerHTML={{ __html: JSON.stringify([productSchema, breadcrumbSchema]) }}
       />
       
       <div className="bg-brand-light">
